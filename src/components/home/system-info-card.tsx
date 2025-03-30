@@ -4,41 +4,26 @@ import { InfoOutlined, SettingsOutlined, WarningOutlined } from "@mui/icons-mate
 import { useVerge } from "@/hooks/use-verge";
 import { EnhancedCard } from "./enhanced-card";
 import useSWR from "swr";
-import { getRunningMode, getSystemInfo, installService, isAdmin } from "@/services/cmds";
+import { getSystemInfo, installService } from "@/services/cmds";
 import { useNavigate } from "react-router-dom";
 import { version as appVersion } from "@root/package.json";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { check as checkUpdate } from "@tauri-apps/plugin-updater";
 import { useLockFn } from "ahooks";
 import { Notice } from "@/components/base";
+import { useSystemState } from "@/hooks/use-system-state";
 
 export const SystemInfoCard = () => {
   const { t } = useTranslation();
   const { verge, patchVerge } = useVerge();
   const navigate = useNavigate();
+  const { runningMode, isAdminMode, isSidecarMode, mutateRunningMode } = useSystemState();
 
   // 系统信息状态
   const [systemState, setSystemState] = useState({
     osInfo: "",
     lastCheckUpdate: "-",
   });
-
-  // 获取运行模式
-  const { data: runningMode = "Sidecar", mutate: mutateRunningMode } = useSWR(
-    "getRunningMode",
-    getRunningMode,
-    { suspense: false, revalidateOnFocus: false },
-  );
-
-  // 获取管理员状态
-  const { data: isAdminMode = false } = useSWR(
-    "isAdmin",
-    isAdmin,
-    { suspense: false, revalidateOnFocus: false },
-  );
-
-  // 是否以sidecar模式运行
-  const isSidecarMode = runningMode === "Sidecar";
 
   // 初始化系统信息
   useEffect(() => {
